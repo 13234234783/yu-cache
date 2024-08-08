@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Import({
-        YuCacheApplication.class
+
 })
 public @interface EnableYuCache {
 

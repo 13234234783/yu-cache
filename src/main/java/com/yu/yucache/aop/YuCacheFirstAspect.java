@@ -2,6 +2,7 @@ package com.yu.yucache.aop;
 
 import com.yu.yucache.annotate.YuCache;
 import com.yu.yucache.cachemannger.FirstCacheManager;
+import com.yu.yucache.factory.YuCacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -25,6 +26,10 @@ public class YuCacheFirstAspect {
 
     @Resource
     private FirstCacheManager firstCacheManager;
+
+
+    @Resource
+    private YuCacheFactory yuCacheFactory;
 
 
     @Pointcut("@annotation(com.yu.yucache.annotate.YuCache)")
@@ -61,7 +66,7 @@ public class YuCacheFirstAspect {
 
 
     @AfterReturning(pointcut = "getCacheData()", returning = "result")
-    public Object afterReturningAdvice(JoinPoint joinPoint, Object result) throws NoSuchMethodException {
+    public Object afterReturningAdvice(JoinPoint joinPoint, Object result) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
         SourceLocation sourceLocation = joinPoint.getSourceLocation();
         Class withinType = sourceLocation.getWithinType();
         String name = joinPoint.getSignature().getName();
