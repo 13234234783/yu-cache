@@ -45,14 +45,13 @@ public class YuCacheFirstAspect {
         String name = joinPoint.getSignature().getName();
         Method method = withinType.getDeclaredMethod(name);
         if (method.isAnnotationPresent(YuCache.class)) {
-            YuCache annotation = (YuCache) method.getAnnotation(YuCache.class);
+            YuCache annotation = method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
             resCacheData = firstCacheManager.getDataFromFirstCache(keyColumn);
             if (resCacheData == null) {
                 log.info("目标值一级缓存没有---暂不请求二级缓存直接请求后台");
                 resCacheData = joinPoint.proceed();
             }
-
             return resCacheData;
         } else {
             return null;
@@ -68,7 +67,7 @@ public class YuCacheFirstAspect {
         String name = joinPoint.getSignature().getName();
         Method method = withinType.getDeclaredMethod(name);
         if (method.isAnnotationPresent(YuCache.class)) {
-            YuCache annotation = (YuCache) method.getAnnotation(YuCache.class);
+            YuCache annotation = method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
             firstCacheManager.setDataFromFirstCache(keyColumn, result);
             log.info("已从后台拿到返回值{}", result);

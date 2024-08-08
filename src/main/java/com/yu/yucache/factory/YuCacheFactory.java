@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Set;
 /**
  * 配置工厂
  */
-@Configuration
+@Component
 @Slf4j
 public class YuCacheFactory {
     @Resource
@@ -26,13 +27,14 @@ public class YuCacheFactory {
     }
 
 
+
     @Bean
     public FirstCacheManager firstCacheManager() throws InstantiationException, IllegalAccessException {
         Map<String, FirstCacheManager> map = applicationContext.getBeansOfType(FirstCacheManager.class);
         Set<String> keySet = map.keySet();
         for (String key : keySet) {
             if (!key.equals("DefaultsFirstCache")) {
-                return FirstCacheManager.class.newInstance();
+                return map.get(key);
             }
         }
         return new DefaultsFirstCache();

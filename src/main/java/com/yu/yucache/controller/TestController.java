@@ -1,20 +1,15 @@
 package com.yu.yucache.controller;
 
 
-import com.yu.yucache.annotate.EnableYuCache;
 import com.yu.yucache.annotate.YuCache;
 import com.yu.yucache.annotate.YuUpDataCache;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping
 public class TestController {
-
-
 
 
     @GetMapping("/test")
