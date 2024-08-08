@@ -1,24 +1,20 @@
 package com.yu.yucache.aop;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.yu.yucache.annotate.YuCache;
-
-import com.yu.yucache.cacheinterfaces.CacheConfigInterfaces;
-import com.yu.yucache.cachemannger.CacheManager;
-import com.yu.yucache.instance.BaseConfigInstance;
-import com.yu.yucache.properties.CacheConfigProperties;
+import com.yu.yucache.cachemannger.FirstCacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.SourceLocation;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
-import java.util.List;
 
 @Aspect
 @Component
@@ -28,21 +24,15 @@ public class YuCacheFirstAspect {
 
 
     @Resource
-    private Cache<String, Object> cache;
-
-
-    @Resource
-    private CacheManager cacheManager;
+    private FirstCacheManager firstCacheManager;
 
 
     @Pointcut("@annotation(com.yu.yucache.annotate.YuCache)")
-    public void getCacheData(){}
+    public void getCacheData() {
+    }
 
 
 /*
-     * 前置
-     * @param joinPoint
-     *//*
     @Before("getCacheData()")
     public void beforeGetCacheData(JoinPoint joinPoint) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         // 提前加载好配置信息
@@ -92,7 +82,6 @@ public class YuCacheFirstAspect {
     }*/
 
     /**
-     *
      * @param joinPoint
      * @return
      * @throws Throwable
@@ -100,56 +89,24 @@ public class YuCacheFirstAspect {
 
     @Around("getCacheData()")
     public Object AroundCacheData(ProceedingJoinPoint joinPoint) throws Throwable {
-        // 拿到管理器类 看看管理器的值
-        BaseConfigInstance baseConfigInstance = cacheManager.initConfigInstance();
-        CacheConfigProperties cacheConfigProperties = baseConfigInstance.getCacheConfigProperties();
-        // 拿到目标类
+        Object resCacheData = null;
         SourceLocation sourceLocation = joinPoint.getSourceLocation();
         Class withinType = sourceLocation.getWithinType();
         String name = joinPoint.getSignature().getName();
         Method method = withinType.getDeclaredMethod(name);
-        if(method.isAnnotationPresent(YuCache.class)){
-            YuCache annotation = method.getAnnotation(YuCache.class);
+        if (method.isAnnotationPresent(YuCache.class)) {
+            YuCache annotation = (YuCache) method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
-            // 在一级缓存里面拿到值
-            Object o=new Object();
-            if(cacheConfigProperties.getIsOpenFirstCache()){
-                o= cache.getIfPresent(keyColumn);
-                if(o==null){
-                    // 走二级缓存
-                    if(cacheConfigProperties.getIsOpenSecondCache()){
-                        // 查询二级缓存
-                        if(o == null){ // 二级缓存没有
-                            Object proceed = joinPoint.proceed();
-                            o=proceed;
-                        }
-                    }
-                    else {
-                        Object proceed = joinPoint.proceed();
-                        o=proceed;
-                    }
-                }
-                return o;
-            } else { // 一级缓存没有
-                if(cacheConfigProperties.getIsOpenSecondCache()){
-                    // 查询二级缓存
-                    if(o == null){ // 二级缓存没有
-                        Object proceed = joinPoint.proceed();
-                        o=proceed;
-                    }
-                }
-                else {
-                    Object proceed = joinPoint.proceed();
-                    o=proceed;
-                }
-                // 缓存存在命中了 不走二级缓存 直接返回结果
-                return o;
+            resCacheData = firstCacheManager.getDataFromFirstCache(keyColumn);
+            if (resCacheData == null) {
+                log.info("目标值一级缓存没有---暂不请求二级缓存直接请求后台");
+                resCacheData = joinPoint.proceed();
             }
-        }else {
-            // 说明该方法上没有注解 有异常
+
+            return resCacheData;
+        } else {
             return null;
         }
-
     }
 
 
@@ -183,21 +140,20 @@ public class YuCacheFirstAspect {
     }*/
 
 
-
-    @AfterReturning(pointcut  = "getCacheData()", returning = "result")
+    @AfterReturning(pointcut = "getCacheData()", returning = "result")
     public Object afterReturningAdvice(JoinPoint joinPoint, Object result) throws NoSuchMethodException {
-        // 拿到目标类
         SourceLocation sourceLocation = joinPoint.getSourceLocation();
         Class withinType = sourceLocation.getWithinType();
         String name = joinPoint.getSignature().getName();
         Method method = withinType.getDeclaredMethod(name);
-        if(method.isAnnotationPresent(YuCache.class)){
-            YuCache annotation = method.getAnnotation(YuCache.class);
+        if (method.isAnnotationPresent(YuCache.class)) {
+            YuCache annotation = (YuCache) method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
-            cache.put(keyColumn,result);
+            firstCacheManager.setDataFromFirstCache(keyColumn, result);
+            log.info("已从后台拿到返回值{}", result);
         }
+
         return result;
-        // 将返回值赋给缓存manner
     }
 
 }
