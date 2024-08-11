@@ -7,13 +7,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class InvaliditySecondCache implements SecondCacheManager {
+
     @Override
-    public Object getDataFromSecondCache() {
+    public Object getDataFromSecondCache(String colName) {
         return null;
     }
 
     @Override
-    public Boolean setDataFromSecondCache() {
+    public Boolean setDataFromSecondCache(String colName, Object val) {
         return null;
     }
 }

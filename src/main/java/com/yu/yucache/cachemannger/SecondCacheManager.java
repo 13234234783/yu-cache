@@ -1,7 +1,7 @@
 package com.yu.yucache.cachemannger;
 
 public interface SecondCacheManager {
-    Object getDataFromSecondCache();
+    Object getDataFromSecondCache(String colName);
 
-    Boolean setDataFromSecondCache();
+    Boolean setDataFromSecondCache(String colName, Object val);
 }

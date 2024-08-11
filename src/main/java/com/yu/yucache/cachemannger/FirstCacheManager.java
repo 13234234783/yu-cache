@@ -1,7 +1,7 @@
 package com.yu.yucache.cachemannger;
 
 public interface FirstCacheManager {
-    Object getDataFromFirstCache(String var1);
+    Object getDataFromFirstCache(String colName);
 
-    Boolean setDataFromFirstCache(String var1, Object var2);
+    Boolean setDataFromFirstCache(String colName, Object val);
 }

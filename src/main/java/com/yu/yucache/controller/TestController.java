@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
 
-    @GetMapping("/test")
+    @GetMapping("/cahcetest")
     @YuCache(keyColumn = "name")
     public String myMethod() {
         System.out.println("开始执行了");
@@ -20,17 +20,4 @@ public class TestController {
     }
 
 
-    @GetMapping("/test1")
-    @YuCache(keyColumn = "age")
-    public String myMethod1() {
-        return "Hello, World!";
-    }
-
-
-    @GetMapping("/test2")
-    @YuUpDataCache
-    @YuCache(keyColumn = "age")
-    public String myMethod2() {
-        return "Hello, World!";
-    }
 }

@@ -2,6 +2,7 @@ package com.yu.yucache.aop;
 
 import com.yu.yucache.annotate.YuCache;
 import com.yu.yucache.cachemannger.FirstCacheManager;
+import com.yu.yucache.cachemannger.SecondCacheManager;
 import com.yu.yucache.factory.YuCacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -21,7 +22,7 @@ import java.lang.reflect.Method;
 @Component
 @EnableAspectJAutoProxy
 @Slf4j
-public class YuCacheFirstAspect {
+public class YuCacheAspect {
 
 
     @Resource
@@ -29,7 +30,9 @@ public class YuCacheFirstAspect {
 
 
     @Resource
-    private YuCacheFactory yuCacheFactory;
+    private SecondCacheManager secondCacheManager;
+
+
 
 
     @Pointcut("@annotation(com.yu.yucache.annotate.YuCache)")
@@ -54,8 +57,15 @@ public class YuCacheFirstAspect {
             String keyColumn = annotation.keyColumn();
             resCacheData = firstCacheManager.getDataFromFirstCache(keyColumn);
             if (resCacheData == null) {
-                log.info("目标值一级缓存没有---暂不请求二级缓存直接请求后台");
-                resCacheData = joinPoint.proceed();
+                log.info("目标值一级缓存没有");
+                resCacheData=secondCacheManager.getDataFromSecondCache(keyColumn);
+                if(resCacheData==null){
+                    log.info("目标值二级缓存没有----直接请求后台");
+                    resCacheData = joinPoint.proceed();
+                }
+                else {
+                    return resCacheData;
+                }
             }
             return resCacheData;
         } else {

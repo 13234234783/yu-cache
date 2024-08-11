@@ -28,10 +28,6 @@ public class YuCacheFactory {
     private ApplicationContext applicationContext;
 
 
-    private boolean firstCache;
-
-    private boolean secondCache;
-
     public YuCacheFactory() {
         log.info("YuCacheFactory被加载");
     }
