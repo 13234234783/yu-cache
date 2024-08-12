@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 @Configuration
 public class InvalidityFirstCache implements FirstCacheManager {
     @Override
+    public BaseYuCacheFirstConfig baseYuCacheFirstConfig(BaseYuCacheFirstConfig baseYuCacheFirstConfig) {
+        return null;
+    }
+
+    @Override
     public Object getDataFromFirstCache(String var1) {
         return null;
     }

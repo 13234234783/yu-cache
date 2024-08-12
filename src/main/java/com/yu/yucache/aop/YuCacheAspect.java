@@ -4,6 +4,7 @@ import com.yu.yucache.annotate.YuCache;
 import com.yu.yucache.cachemannger.FirstCacheManager;
 import com.yu.yucache.cachemannger.SecondCacheManager;
 import com.yu.yucache.factory.YuCacheFactory;
+import com.yu.yucache.strategy.selectcontext.YuCacheContext;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -26,11 +27,17 @@ public class YuCacheAspect {
 
 
     @Resource
+    private YuCacheFactory yuCacheFactory;
+
+    @Resource
     private FirstCacheManager firstCacheManager;
 
 
     @Resource
     private SecondCacheManager secondCacheManager;
+
+    @Resource
+    private YuCacheContext yuCacheContext;
 
 
 
@@ -84,7 +91,8 @@ public class YuCacheAspect {
         if (method.isAnnotationPresent(YuCache.class)) {
             YuCache annotation = method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
-            firstCacheManager.setDataFromFirstCache(keyColumn, result);
+//            firstCacheManager.setDataFromFirstCache(keyColumn, result);
+            yuCacheContext.specificExecute(yuCacheFactory).saveCache(keyColumn,result);
             log.info("已从后台拿到返回值{}", result);
         }
 

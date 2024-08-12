@@ -33,7 +33,7 @@ public class YuCacheFactory {
     }
 
 
-    private Map<String, Boolean> getCacheState() throws InstantiationException, IllegalAccessException {
+    public Map<String, Boolean> getCacheState() throws InstantiationException, IllegalAccessException {
 
         HashMap<String, Boolean> map = new HashMap<>();
         log.info("同时加载配置");
@@ -91,7 +91,7 @@ public class YuCacheFactory {
         Map<String, SecondCacheManager> map = applicationContext.getBeansOfType(SecondCacheManager.class);
         Set<String> keySet = map.keySet();
         if (keySet.size() > 2) {
-            throw new RuntimeException("配置过多的FirstCacheManager，请删除无用的FirstCacheManager");
+            throw new RuntimeException("配置过多的SecondCacheManager，请删除无用的SecondCacheManager");
         }
         for (String key : keySet) {
             if (!key.equals("InvaliditySecondCache")) {
