@@ -1,6 +1,6 @@
 ### yu-cache--缓存框架
 
-#### 1.开启功能
+#### 1.开启功能 （默认一级缓存开启，二级缓存关闭）
 
 ```java
   @EnableYuCache(openFirstCache = true,openSecondCache = false)
@@ -8,7 +8,7 @@
 
 #### 2.用户自定义缓存
 
- 2.1 一级缓存(Caffeine 为例) --二级缓存同理 
+ 2.1 一级缓存(Caffeine 为例) --二级缓存同理 （实现SecondCacheManager）
 
 ```java
 @Configuration
