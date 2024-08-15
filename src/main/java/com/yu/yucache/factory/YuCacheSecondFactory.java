@@ -1,11 +1,9 @@
 package com.yu.yucache.factory;
 
-import org.springframework.stereotype.Component;
-
 /**
  * 抽象工厂类
  */
-public interface YuCacheFirstFactory {
+public interface YuCacheSecondFactory {
 
     public Object getData(String key);
 

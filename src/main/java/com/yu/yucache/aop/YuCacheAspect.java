@@ -1,8 +1,6 @@
 package com.yu.yucache.aop;
 
 import com.yu.yucache.annotate.YuCache;
-import com.yu.yucache.cachemannger.FirstCacheManager;
-import com.yu.yucache.cachemannger.SecondCacheManager;
 import com.yu.yucache.factory.YuCacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -26,12 +24,7 @@ public class YuCacheAspect {
 
 
     @Resource
-    private FirstCacheManager firstCacheManager;
-
-
-    @Resource
-    private SecondCacheManager secondCacheManager;
-
+    private YuCacheFactory yuCacheFactory;
 
 
 
@@ -55,15 +48,14 @@ public class YuCacheAspect {
         if (method.isAnnotationPresent(YuCache.class)) {
             YuCache annotation = method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
-            resCacheData = firstCacheManager.getDataFromFirstCache(keyColumn);
+            resCacheData = yuCacheFactory.getYuCacheFirstFactory().getData(keyColumn);
             if (resCacheData == null) {
                 log.info("目标值一级缓存没有");
-                resCacheData=secondCacheManager.getDataFromSecondCache(keyColumn);
-                if(resCacheData==null){
+//                resCacheData = yuSecondCache.getYuCacheSecondFactory().getData(keyColumn);
+                if (resCacheData == null) {
                     log.info("目标值二级缓存没有----直接请求后台");
                     resCacheData = joinPoint.proceed();
-                }
-                else {
+                } else {
                     return resCacheData;
                 }
             }
@@ -72,7 +64,6 @@ public class YuCacheAspect {
             return null;
         }
     }
-
 
 
     @AfterReturning(pointcut = "getCacheData()", returning = "result")
@@ -84,7 +75,7 @@ public class YuCacheAspect {
         if (method.isAnnotationPresent(YuCache.class)) {
             YuCache annotation = method.getAnnotation(YuCache.class);
             String keyColumn = annotation.keyColumn();
-            firstCacheManager.setDataFromFirstCache(keyColumn, result);
+            yuCacheFactory.getYuCacheFirstFactory().saveData(keyColumn, result);
             log.info("已从后台拿到返回值{}", result);
         }
 
